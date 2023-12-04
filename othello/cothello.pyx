@@ -4,6 +4,7 @@ import numpy as np
 cimport numpy as np
 from cython cimport view
 from cython.parallel import prange
+from libcpp.vector cimport vector
 
 directions_ = np.array([
     [0, 1], [1, 0], [0, -1], [-1, 0],
@@ -54,16 +55,17 @@ cpdef bool c_is_legal_move(const int player, const int x, const int y, int[:, :]
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cpdef bool[:, :] c_legal_moves(const int player, int[:, :] board):
+cpdef tuple c_legal_moves(const int player, int[:, :] board):
     cdef int x, y
-    cdef np.ndarray[np.uint8_t, cast=True, ndim=2] is_legal = np.zeros((8, 8), dtype="uint8")
-    cdef bool[:, :] view = is_legal
-
+    cdef vector[int] xs = []
+    cdef vector[int] ys = []
     for x in range(8):
         for y in range(8):
-            view[x, y] = c_is_legal_move(player, x, y, board)
+            if c_is_legal_move(player, x, y, board):
+                xs.push_back(x)
+                ys.push_back(y)
 
-    return is_legal
+    return xs, ys
 
 
 @cython.boundscheck(False)

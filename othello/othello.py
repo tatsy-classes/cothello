@@ -138,9 +138,8 @@ class Env(object):
         if player == Player.NONE:
             player = self.player
 
-        is_legal = c_legal_moves(player, self.board)
-        moves = [Move(player, x, y) for x, y in product(range(8), range(8)) if is_legal[x, y]]
-
+        xs, ys = c_legal_moves(player, self.board)
+        moves = [Move(player, x, y) for x, y in zip(xs, ys)]
         if len(moves) == 0:
             moves = [Move.make_pass(self.player)]
 
