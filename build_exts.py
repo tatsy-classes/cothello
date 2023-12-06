@@ -1,3 +1,5 @@
+import platform
+
 import numpy as np
 from setuptools import Extension
 from Cython.Build import build_ext, cythonize
@@ -7,7 +9,8 @@ ext_modules = [
     Extension(
         "othello.cothello",
         sources=[
-            "othello/cothello.pyx",
+            "othello/cython_othello.pyx",
+            "othello/cothello.cpp",
         ],
         define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")],
         language="c++",
@@ -31,7 +34,11 @@ class MyBuildExt(build_ext):
 
         elif self.compiler.compiler_type == "msvc":
             for e in self.extensions:
-                e.extra_compile_args.extend(["/std:c11", "/openmp"])
+                e.extra_compile_args.extend(["/std:c11", "/utf-8", "/openmp"])
+
+        if platform.system() == "Darwin":
+            for e in self.extensions:
+                e.extra_compile_args.extend(["-mmacosx-version-min=10.15"])
 
         try:
             build_ext.build_extension(self, ext)

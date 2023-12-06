@@ -1,5 +1,5 @@
 *.pyd
-*.cpp
-*.c
 *.so
 build/*
+cython_othello.cpp
+cython_othello.h

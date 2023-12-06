@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from PIL import Image, ImageDraw
 from IPython.core.pylabtools import print_figure
 
-from .cothello import c_step, c_legal_moves
+from .cothello import cython_update, cython_legal_moves
 
 Board = npt.NDArray[np.object_]
 
@@ -131,14 +131,14 @@ class Env(object):
 
         self.player = self.player.next()
         if not move.is_pass():
-            c_step(move.player.value, move.x, move.y, self.board)
+            cython_update(move.player.value, move.x, move.y, self.board)
 
     def legal_moves(self, player: Player = Player.NONE) -> List[Move]:
         """List legal moves"""
         if player == Player.NONE:
             player = self.player
 
-        xs, ys = c_legal_moves(player, self.board)
+        xs, ys = cython_legal_moves(player, self.board)
         moves = [Move(player, x, y) for x, y in zip(xs, ys)]
         if len(moves) == 0:
             moves = [Move.make_pass(self.player)]
