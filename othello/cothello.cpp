@@ -10,6 +10,30 @@ enum class Player : int {
     WHITE = -1,
 };
 
+bool c_is_done(int *board) {
+    for (int x = 0; x < 8; x++) {
+        for (int y = 0; y < 8; y++) {
+            if (board[x * 8 + y] == 0) {
+                return false;
+            }
+        }
+    }
+
+    std::vector<int> xs;
+    std::vector<int> ys;
+    c_legal_moves((int)Player::BLACK, board, xs, ys);
+    if (!xs.empty() && !ys.empty()) {
+        return false;
+    }
+
+    c_legal_moves((int)Player::WHITE, board, xs, ys);
+    if (!xs.empty() && !ys.empty()) {
+        return false;
+    }
+
+    return true;
+}
+
 bool c_is_legal_move(int player, int x, int y, int *board) {
     const int other = -1 * player;
     if (board[x * 8 + y] != (int)Player::NONE) {

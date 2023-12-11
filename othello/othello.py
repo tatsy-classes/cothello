@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from PIL import Image, ImageDraw
 from IPython.core.pylabtools import print_figure
 
-from .cothello import cython_update, cython_legal_moves
+from .cothello import cython_update, cython_is_done, cython_legal_moves
 
 Board = npt.NDArray[np.object_]
 
@@ -96,15 +96,7 @@ class Env(object):
         self.stack.clear()
 
     def is_done(self) -> bool:
-        black_moves = self.legal_moves(Player.BLACK)
-        if not black_moves[0].is_pass():
-            return False
-
-        white_moves = self.legal_moves(Player.WHITE)
-        if not white_moves[0].is_pass():
-            return False
-
-        return True
+        return cython_is_done(self.board)
 
     def count(self, player: Player) -> int:
         return np.sum(self.board == player)
