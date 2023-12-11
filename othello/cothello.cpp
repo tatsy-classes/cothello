@@ -84,16 +84,21 @@ bool c_is_legal_move(int player, int x, int y, int *board) {
 }
 
 void c_legal_moves(int player, int *board, std::vector<int> &xs, std::vector<int> &ys) {
-    xs.clear();
-    ys.clear();
+    int count = 0;
+    int xs_[64];
+    int ys_[64];
     for (int x = 0; x < 8; x++) {
         for (int y = 0; y < 8; y++) {
             if (c_is_legal_move(player, x, y, board)) {
-                xs.push_back(x);
-                ys.push_back(y);
+                xs_[count] = x;
+                ys_[count] = y;
+                count++;
             }
         }
     }
+
+    xs.assign(xs_, xs_ + count);
+    ys.assign(ys_, ys_ + count);
 }
 
 void c_update(int player, int x, int y, int *board) {
