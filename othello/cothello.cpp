@@ -17,7 +17,7 @@ enum class Player : int {
 bool c_is_done(int *board) {
     int *ptr = board;
     for (int i = 0; i < 64; ++i, ++ptr) {
-        if (*ptr == 0) {
+        if ((*ptr) == 0) {
             return false;
         }
     }
