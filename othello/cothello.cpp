@@ -15,11 +15,17 @@ enum class Player : int {
 };
 
 bool c_is_done(int *board) {
+    bool is_done = true;
     int *ptr = board;
     for (int i = 0; i < 64; ++i, ++ptr) {
         if ((*ptr) == 0) {
-            return false;
+            is_done = false;
+            break;
         }
+    }
+
+    if (is_done) {
+        return true;
     }
 
     std::vector<int> xs;
