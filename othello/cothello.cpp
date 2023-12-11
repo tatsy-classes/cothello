@@ -1,5 +1,9 @@
 #include "cothello.h"
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 const int directions[8][2] = {
     { 0, 1 }, { 1, 0 }, { 0, -1 }, { -1, 0 }, { 1, 1 }, { -1, -1 }, { 1, -1 }, { -1, 1 },
 };
@@ -11,16 +15,16 @@ enum class Player : int {
 };
 
 bool c_is_done(int *board) {
-    for (int x = 0; x < 8; x++) {
-        for (int y = 0; y < 8; y++) {
-            if (board[x * 8 + y] == 0) {
-                return false;
-            }
+    int *ptr = board;
+    for (int i = 0; i < 64; i++) {
+        if ((*ptr++) == 0) {
+            return false;
         }
     }
 
     std::vector<int> xs;
     std::vector<int> ys;
+
     c_legal_moves((int)Player::BLACK, board, xs, ys);
     if (!xs.empty() && !ys.empty()) {
         return false;
@@ -40,6 +44,7 @@ bool c_is_legal_move(int player, int x, int y, int *board) {
         return false;
     }
 
+#pragma omp parallel for
     for (int i = 0; i < 8; i++) {
         const int dx = directions[i][0];
         const int dy = directions[i][1];
@@ -90,6 +95,7 @@ void c_update(int player, int x, int y, int *board) {
     board[x * 8 + y] = player;
 
     const int other = -1 * player;
+#pragma omp parallel for
     for (int i = 0; i < 8; i++) {
         const int dx = directions[i][0];
         const int dy = directions[i][1];

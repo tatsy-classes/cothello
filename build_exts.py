@@ -36,6 +36,11 @@ class MyBuildExt(build_ext):
             for e in self.extensions:
                 e.extra_compile_args.extend(["/std:c11", "/utf-8", "/openmp"])
 
+        if platform.system() == "Linux":
+            for e in self.extensions:
+                e.extra_compile_args.extend(["-fopenmp"])
+                e.extra_link_args.extend(["-fopenmp"])
+
         if platform.system() == "Darwin":
             for e in self.extensions:
                 e.extra_compile_args.extend(["-mmacosx-version-min=10.15"])
