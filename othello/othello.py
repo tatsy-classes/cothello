@@ -2,51 +2,37 @@ from __future__ import annotations
 
 import os
 import enum
-from typing import List, Tuple, Union
-from itertools import product
+from typing import List, Tuple
 
 import numpy as np
 import numpy.typing as npt
+import othello.bitboard as bb
 import matplotlib.pyplot as plt
 from PIL import Image, ImageDraw
 from IPython.core.pylabtools import print_figure
 
-from .cothello import cython_update, cython_is_done, cython_legal_moves
-
-Board = npt.NDArray[np.object_]
+Board = npt.NDArray[np.int32]
 
 __all__ = ["Player", "Move", "Env", "make"]
 
 
 class Player(enum.IntEnum):
-    NONE = 0
     BLACK = 1
     WHITE = -1
 
-    def next(self) -> Player:
-        assert self.value != 0
-
-        if self == Player.BLACK:
-            return Player.WHITE
-        else:
-            return Player.BLACK
+    def __neg__(self) -> Player:
+        return Player(-self.value)
 
     def __str__(self) -> str:
-        return self.__repr__()
+        return self.name
 
     def __repr__(self) -> str:
-        if self == Player.BLACK:
-            return "BLACK"
-        elif self == Player.WHITE:
-            return "WHITE"
-        else:
-            return "NONE"
+        return self.name
 
 
 class Move(object):
     def __init__(self, player: Player, x: int, y: int) -> None:
         assert 0 <= x < 8 and 0 <= y < 8
-
         self.player = player
         self.x = x
         self.y = y
@@ -68,74 +54,96 @@ class Move(object):
         return self.y == other.y
 
     def __repr__(self) -> str:
-        assert self.player in [Player.BLACK, Player.WHITE]
         return str((self.player.name, self.x + 1, self.y + 1))
+
+    def tosym(self) -> str:
+        if self.is_pass():
+            return ""
+        return chr(ord("A") + self.x) + chr(ord("1") + self.y)
 
 
 class Env(object):
     def __init__(self) -> None:
-        self.player = Player.BLACK
-        self.board: Board = np.full((8, 8), Player.NONE, dtype="int32")
-        self.history: List[Move] = []
-        self.stack: List[Board] = []
+        self.player: Player = Player.BLACK
+        self.b_board: np.uint64 = np.uint64(0x0000_0000_0000_0000)
+        self.w_board: np.uint64 = np.uint64(0x0000_0000_0000_0000)
+        self.board_history: List[Tuple[np.uint64, np.uint64]] = []
+        self.move_history: List[Move] = []
 
     def copy(self) -> Env:
         env = Env()
         env.player = self.player
-        env.board = self.board.copy()
+        env.b_board = self.b_board
+        env.w_board = self.w_board
         return env
 
     def reset(self) -> None:
         self.player = Player.BLACK
-        self.board[:] = Player.NONE
-        self.board[3, 3] = Player.BLACK
-        self.board[4, 3] = Player.WHITE
-        self.board[3, 4] = Player.WHITE
-        self.board[4, 4] = Player.BLACK
-        self.history.clear()
-        self.stack.clear()
+        self.b_board = np.uint64(0x0000_0008_1000_0000)
+        self.w_board = np.uint64(0x0000_0010_0800_0000)
 
     def is_done(self) -> bool:
-        return cython_is_done(self.board)
+        return bb.cython_isDone(self.b_board, self.w_board)
+
+    @property
+    def board(self) -> Board:
+        B = bb.cython_bitsToBoard(self.b_board)
+        W = bb.cython_bitsToBoard(self.w_board)
+        return B - W
 
     def count(self, player: Player) -> int:
-        return np.sum(self.board == player)
+        if player == Player.BLACK:
+            return bb.cython_bitCount(self.b_board)
+        else:
+            return bb.cython_bitCount(self.w_board)
 
     def is_win(self, player: Player) -> bool:
-        return self.count(player) > self.count(player.next())
+        return self.count(player) > self.count(-player)
 
     def is_lose(self, player: Player) -> bool:
         return not self.is_win(player)
 
     def undo(self) -> None:
-        self.player = self.player.next()
-        self.history.pop()
-        self.board = self.stack.pop()
+        self.player = -self.player
+        self.b_board, self.w_board = self.board_history.pop()
+        self.move_history.pop()
 
     def update(self, move: Move) -> None:
         """Update othello board by a move"""
-        if move.player != self.player:
-            raise RuntimeError("Player in env and that in move do not match!!")
+        self.move_history.append(move)
+        self.board_history.append((self.b_board, self.w_board))
 
-        # Store previous state
-        self.history.append(move)
-        self.stack.append(self.board.copy())
+        if self.player == Player.BLACK:
+            b0, b1 = self.b_board, self.w_board
+        else:
+            b0, b1 = self.w_board, self.b_board
 
-        self.player = self.player.next()
-        if not move.is_pass():
-            cython_update(move.player.value, move.x, move.y, self.board)
+        sym = move.tosym()
+        if sym != "":
+            put = bb.cython_coordinatesToBits(sym)
+            b0, b1 = bb.cython_reverse(put, b0, b1)
 
-    def legal_moves(self, player: Player = Player.NONE) -> List[Move]:
+        if self.player == Player.BLACK:
+            self.player = Player.WHITE
+            self.b_board, self.w_board = b0, b1
+        else:
+            self.player = Player.BLACK
+            self.w_board, self.b_board = b0, b1
+
+    def legal_moves(self) -> List[Move]:
         """List legal moves"""
-        if player == Player.NONE:
-            player = self.player
+        if self.player == Player.BLACK:
+            b0, b1 = self.b_board, self.w_board
+        else:
+            b0, b1 = self.w_board, self.b_board
 
-        xs, ys = cython_legal_moves(player, self.board)
-        moves = [Move(player, x, y) for x, y in zip(xs, ys)]
-        if len(moves) == 0:
-            moves = [Move.make_pass(self.player)]
+        bits = bb.cython_makeLegalBoard(b0, b1)
+        if bits == 0:
+            return [Move.make_pass(self.player)]
 
-        return moves
+        legal = bb.cython_bitsToBoard(bits)
+        ys, xs = np.where(legal != 0)
+        return [Move(self.player, x, y) for x, y in zip(xs, ys)]
 
     def render(self) -> npt.NDArray[np.uint8]:
         size = 1024  # size of board
@@ -147,8 +155,8 @@ class Env(object):
         draw = ImageDraw.Draw(img)
 
         # If board history exists, highlight last move
-        if len(self.history) > 0:
-            last_move = self.history[-1]
+        if len(self.move_history) > 0:
+            last_move = self.move_history[-1]
             i, j = last_move.x, last_move.y
             if 0 <= i < 8 and 0 <= j < 8:
                 x = j * csize
@@ -175,31 +183,37 @@ class Env(object):
             draw.ellipse(st, fill="black")
 
         # Disks
+        B = bb.cython_bitsToBoard(self.b_board)
+        W = bb.cython_bitsToBoard(self.w_board)
         for i in range(8):
             for j in range(8):
-                if self.board[i, j] != Player.NONE:
-                    px = j * csize + margin
-                    py = i * csize + margin
-                    diameter = csize - margin * 2
-                    xy = (px, py, px + diameter, py + diameter)
-                    fill = "black" if self.board[i, j] == Player.BLACK else "white"
-                    draw.ellipse(xy, fill=fill)
+                px = j * csize + margin
+                py = i * csize + margin
+                diameter = csize - margin * 2
+                xy = (px, py, px + diameter, py + diameter)
+                if B[i, j] != 0:
+                    draw.ellipse(xy, fill="black")
+                if W[i, j] != 0:
+                    draw.ellipse(xy, fill="white")
 
         return np.array(img, dtype="uint8")
 
     def __repr__(self) -> str:
+        B = bb.cython_bitsToBoard(self.b_board)
+        W = bb.cython_bitsToBoard(self.w_board)
+
         sep = "+-" * 8 + "+" + os.linesep
         ret = ""
         ret += sep
         for i in range(self.board.shape[0]):
             ret += "|"
             for j in range(self.board.shape[1]):
-                if self.board[i, j] == Player.NONE:
-                    ret += " "
-                elif self.board[i, j] == Player.BLACK:
+                if B[i, j] != 0:
                     ret += "o"
-                elif self.board[i, j] == Player.WHITE:
+                elif W[i, j] != 0:
                     ret += "x"
+                else:
+                    ret += " "
                 ret += "|"
             ret += os.linesep
             ret += sep
@@ -214,6 +228,9 @@ class Env(object):
             "legal_moves",
             "render",
             "count",
+            "is_done",
+            "is_win",
+            "is_lose",
         ]
 
     def _repr_png_(self):
@@ -227,7 +244,7 @@ class Env(object):
         ax.set(
             xticks=np.arange(csize // 2, size, csize),
             yticks=np.arange(csize // 2, size, csize),
-            xticklabels=np.arange(1, 9),
+            xticklabels=[chr(ord("A") + i) for i in range(8)],
             yticklabels=np.arange(1, 9),
         )
         data = print_figure(fig, "png")

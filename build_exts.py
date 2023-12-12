@@ -7,10 +7,10 @@ from setuptools.errors import CCompilerError, PackageDiscoveryError
 
 ext_modules = [
     Extension(
-        "othello.cothello",
+        "othello.bitboard",
         sources=[
-            "othello/cython_othello.pyx",
-            "othello/cothello.cpp",
+            "othello/cython_bitboard.pyx",
+            "othello/bitboard.cpp",
         ],
         define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")],
         language="c++",
@@ -29,12 +29,12 @@ class MyBuildExt(build_ext):
     def build_extension(self, ext):
         if self.compiler.compiler_type == "unix":
             for e in self.extensions:
-                e.extra_compile_args.extend(["-std=c++11"])
+                e.extra_compile_args.extend(["-std=c++17"])
                 e.extra_link_args.extend([])
 
         elif self.compiler.compiler_type == "msvc":
             for e in self.extensions:
-                e.extra_compile_args.extend(["/std:c11", "/utf-8", "/openmp"])
+                e.extra_compile_args.extend(["/std:c17", "/utf-8", "/openmp"])
 
         if platform.system() == "Linux":
             for e in self.extensions:
