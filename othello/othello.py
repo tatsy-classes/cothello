@@ -6,10 +6,14 @@ from typing import List, Tuple
 
 import numpy as np
 import numpy.typing as npt
-import othello.bitboard as bb
 import matplotlib.pyplot as plt
 from PIL import Image, ImageDraw
 from IPython.core.pylabtools import print_figure
+
+# isort: off
+import othello.bitboard as bb
+
+# isort: on
 
 Board = npt.NDArray[np.int32]
 
@@ -83,19 +87,19 @@ class Env(object):
         self.w_board = np.uint64(0x0000_0010_0800_0000)
 
     def is_done(self) -> bool:
-        return bb.cython_isDone(self.b_board, self.w_board)
+        return bb.c_is_done(self.b_board, self.w_board)
 
     @property
     def board(self) -> Board:
-        B = bb.cython_bitsToBoard(self.b_board)
-        W = bb.cython_bitsToBoard(self.w_board)
+        B = bb.c_bits_to_board(self.b_board)
+        W = bb.c_bits_to_board(self.w_board)
         return B - W
 
     def count(self, player: Player) -> int:
         if player == Player.BLACK:
-            return bb.cython_bitCount(self.b_board)
+            return bb.c_bit_count(self.b_board)
         else:
-            return bb.cython_bitCount(self.w_board)
+            return bb.c_bit_count(self.w_board)
 
     def is_win(self, player: Player) -> bool:
         return self.count(player) > self.count(-player)
@@ -120,8 +124,8 @@ class Env(object):
 
         sym = move.tosym()
         if sym != "":
-            put = bb.cython_coordinatesToBits(sym)
-            b0, b1 = bb.cython_reverse(put, b0, b1)
+            put = bb.c_coordinates_to_bits(sym)
+            b0, b1 = bb.c_reverse(put, b0, b1)
 
         if self.player == Player.BLACK:
             self.player = Player.WHITE
@@ -137,11 +141,11 @@ class Env(object):
         else:
             b0, b1 = self.w_board, self.b_board
 
-        bits = bb.cython_makeLegalBoard(b0, b1)
+        bits = bb.c_make_legal_board(b0, b1)
         if bits == 0:
             return [Move.make_pass(self.player)]
 
-        legal = bb.cython_bitsToBoard(bits)
+        legal = bb.c_bits_to_board(bits)
         ys, xs = np.where(legal != 0)
         return [Move(self.player, x, y) for x, y in zip(xs, ys)]
 
@@ -159,8 +163,8 @@ class Env(object):
             last_move = self.move_history[-1]
             i, j = last_move.x, last_move.y
             if 0 <= i < 8 and 0 <= j < 8:
-                x = j * csize
-                y = i * csize
+                x = i * csize
+                y = j * csize
                 draw.rectangle((x, y, x + csize, y + csize), fill="#00aa00")
 
         # Grid lines
@@ -183,8 +187,8 @@ class Env(object):
             draw.ellipse(st, fill="black")
 
         # Disks
-        B = bb.cython_bitsToBoard(self.b_board)
-        W = bb.cython_bitsToBoard(self.w_board)
+        B = bb.c_bits_to_board(self.b_board)
+        W = bb.c_bits_to_board(self.w_board)
         for i in range(8):
             for j in range(8):
                 px = j * csize + margin
@@ -199,8 +203,8 @@ class Env(object):
         return np.array(img, dtype="uint8")
 
     def __repr__(self) -> str:
-        B = bb.cython_bitsToBoard(self.b_board)
-        W = bb.cython_bitsToBoard(self.w_board)
+        B = bb.c_bits_to_board(self.b_board)
+        W = bb.c_bits_to_board(self.w_board)
 
         sep = "+-" * 8 + "+" + os.linesep
         ret = ""

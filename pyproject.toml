@@ -4,8 +4,8 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "othello"
-version = "1.0.0"
-description = ""
+version = "2.0.0"
+description = "Cythonized othello environment using bitboard."
 authors = ["Tatsuya Yatagawa <tatsy.mail@gmail.com>"]
 readme = "README.md"
 license = "CC BY-NC-SA 4.0"

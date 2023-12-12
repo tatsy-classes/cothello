@@ -2,45 +2,45 @@ import numpy as np
 from othello import bitboard as bb
 
 
-def test_xy2bits():
+def test_coordinates_to_bits():
     for j, x in enumerate("ABCDEFGH"):
         for i, y in enumerate("12345678"):
             xy = x + y
-            b = bb.cython_coordinatesToBits(xy)
-            board = bb.cython_bitsToBoard(b)
+            b = bb.c_coordinates_to_bits(xy)
+            board = bb.c_bits_to_board(b)
             assert board[i, j] == 1
 
 
-def test_legal():
+def test_make_legal_board():
     b0 = np.uint64(0x0000_0008_1000_0000)
     b1 = np.uint64(0x0000_0010_0800_0000)
-    leg = bb.cython_makeLegalBoard(b0, b1)
+    leg = bb.c_make_legal_board(b0, b1)
     print("")
-    print(bb.cython_bitsToBoard(leg))
+    print(bb.c_bits_to_board(leg))
 
 
-def test_canPut():
+def test_can_put():
     b0 = np.uint64(0x0000_0008_1000_0000)
     b1 = np.uint64(0x0000_0010_0800_0000)
 
-    put = bb.cython_coordinatesToBits("D3")
-    assert bb.cython_canPut(put, b0, b1)
+    put = bb.c_coordinates_to_bits("D3")
+    assert bb.c_can_put(put, b0, b1)
 
-    put = bb.cython_coordinatesToBits("C4")
-    assert bb.cython_canPut(put, b0, b1)
+    put = bb.c_coordinates_to_bits("C4")
+    assert bb.c_can_put(put, b0, b1)
 
-    put = bb.cython_coordinatesToBits("B2")
-    assert not bb.cython_canPut(put, b0, b1)
+    put = bb.c_coordinates_to_bits("B2")
+    assert not bb.c_can_put(put, b0, b1)
 
 
 def test_reverse():
     b0 = np.uint64(0x0000_0008_1000_0000)
     b1 = np.uint64(0x0000_0010_0800_0000)
 
-    put = bb.cython_coordinatesToBits("D3")
-    assert bb.cython_canPut(put, b0, b1)
+    put = bb.c_coordinates_to_bits("D3")
+    assert bb.c_can_put(put, b0, b1)
 
-    b0, b1 = bb.cython_reverse(put, b0, b1)
+    b0, b1 = bb.c_reverse(put, b0, b1)
     print("")
-    print(bb.cython_bitsToBoard(b0))
-    print(bb.cython_bitsToBoard(b1))
+    print(bb.c_bits_to_board(b0))
+    print(bb.c_bits_to_board(b1))
