@@ -3,3 +3,5 @@
 build/*
 cython_othello.cpp
 cython_othello.h
+cython_bitboard.cpp
+cython_bitboard.h
