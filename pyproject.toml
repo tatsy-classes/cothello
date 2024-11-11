@@ -1,11 +1,11 @@
 [build-system]
-requires = ["setuptools", "cython", "numpy", "poetry_core>=1.5.0"]
+requires = ["setuptools", "numpy", "poetry_core>=1.5.0", "pybind11>=1.2.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "othello"
-version = "2.0.2"
-description = "Cythonized othello environment using bitboard."
+version = "2.1.0"
+description = "C++ othello environment using bitboard."
 authors = ["Tatsuya Yatagawa <tatsy.mail@gmail.com>"]
 readme = "README.md"
 license = "CC BY-NC-SA 4.0"
@@ -24,6 +24,7 @@ numpy = [
   { version = "^1.26.0", markers = "python_version >= '3.10'" },
 ]
 matplotlib = "*"
+pybind11 = ">=1.2.0"
 cython = "*"
 ipython = "*"
 

@@ -1,20 +1,18 @@
 import platform
 
-import numpy as np
-from setuptools import Extension
-from Cython.Build import build_ext, cythonize
 from setuptools.errors import CCompilerError, PackageDiscoveryError
+from pybind11.setup_helpers import Pybind11Extension
+from setuptools.command.build_ext import build_ext
 
 ext_modules = [
-    Extension(
-        "othello.bitboard",
+    Pybind11Extension(
+        "othello.libcpp",
         sources=[
-            "othello/cython_bitboard.pyx",
-            "othello/bitboard.cpp",
+            "src/pybind11.cpp",
+            "src/bitboard.cpp",
         ],
         define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")],
         language="c++",
-        include_dirs=[np.get_include()],
     ),
 ]
 
@@ -54,7 +52,7 @@ class MyBuildExt(build_ext):
 def build(setup_kwargs):
     setup_kwargs.update(
         {
-            "ext_modules": cythonize(ext_modules, language_level="3"),
+            "ext_modules": ext_modules,
             "cmdclass": {"build_ext": MyBuildExt},
         }
     )

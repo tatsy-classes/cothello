@@ -1,5 +1,5 @@
 import numpy as np
-from othello import bitboard as bb
+import othello.libcpp.bitboard as bb
 
 
 def test_coordinates_to_bits():
@@ -8,6 +8,7 @@ def test_coordinates_to_bits():
             xy = x + y
             b = bb.c_coordinates_to_bits(xy)
             board = bb.c_bits_to_board(b)
+            board = np.array(board).reshape((8, 8))
             assert board[i, j] == 1
 
 

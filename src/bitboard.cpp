@@ -1,6 +1,11 @@
+#include <string>
+#include <cstdint>
+#include <vector>
+#include <array>
+
 #include "bitboard.h"
 
-static constexpr int NUM_CELLS = 64;
+namespace py = pybind11;
 
 uint64_t coordinatesToBits(const std::string &xy) {
     const char x = xy[0];
@@ -18,8 +23,10 @@ uint64_t coordinatesToBits(const std::string &xy) {
     return mask;
 }
 
-std::vector<int> bitsToBoard(uint64_t bits) {
-    std::vector<int> board(NUM_CELLS, 0);
+std::array<int, NUM_CELLS> bitsToBoard(uint64_t bits) {
+    std::array<int, NUM_CELLS> board;
+    std::fill(board.begin(), board.end(), 0);
+
     int pos = NUM_CELLS - 1;
     while (bits != 0) {
         board[pos--] = bits & 0x01;
@@ -112,7 +119,7 @@ uint64_t makeLegalBoard(uint64_t b0, uint64_t b1) {
     return legal;
 }
 
-std::pair<uint64_t, uint64_t> reverse(uint64_t put, uint64_t b0, uint64_t b1) {
+std::tuple<uint64_t, uint64_t> reverse(uint64_t put, uint64_t b0, uint64_t b1) {
     uint64_t rev = 0;
     for (int k = 0; k < 8; k++) {
         uint64_t tmp = 0;
@@ -130,7 +137,7 @@ std::pair<uint64_t, uint64_t> reverse(uint64_t put, uint64_t b0, uint64_t b1) {
     b0 ^= put | rev;
     b1 ^= rev;
 
-    return std::make_pair(b0, b1);
+    return std::make_tuple(b0, b1);
 }
 
 uint64_t transfer(uint64_t put, int k) {
@@ -153,6 +160,23 @@ uint64_t transfer(uint64_t put, int k) {
         return (put << 9) & 0xfefe'fefe'fefe'fe00;
     }
     return 0;
+}
+
+bool canPut(uint64_t put, uint64_t b0, uint64_t b1) {
+    const uint64_t legal = makeLegalBoard(b0, b1);
+    return (put & legal) == put;
+}
+
+bool isPass(uint64_t b0, uint64_t b1) {
+    const uint64_t l0 = makeLegalBoard(b0, b1);
+    const uint64_t l1 = makeLegalBoard(b1, b0);
+    return (l0 == 0) && (l1 != 0);
+}
+
+bool isDone(uint64_t b0, uint64_t b1) {
+    const uint64_t l0 = makeLegalBoard(b0, b1);
+    const uint64_t l1 = makeLegalBoard(b1, b0);
+    return (l0 == 0) && (l1 == 0);
 }
 
 int bitCount(uint64_t bits) {
