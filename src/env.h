@@ -139,14 +139,14 @@ public:
         for (int y = 0; y < 8; y++) {
             for (int x = 0; x < 8; x++) {
                 if (legal[y * 8 + x] != 0) {
-                    ret.push_back(Action(player, x, y));
+                    ret.emplace_back(player, x, y);
                 }
             }
         }
         return ret;
     }
 
-    int historySize() const {
+    size_t historySize() const {
         return action_history.size();
     }
 
