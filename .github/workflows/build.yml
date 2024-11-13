@@ -25,22 +25,26 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
+
       - name: Install Poetry
         run: |
           pipx install poetry
+
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ env.python-version }}
           cache: "poetry"
-          cache-dependency-path: "pyproject.toml"
+
       - name: Upgrade Poetry
         run: |
-          pip install --upgrade poetry
-      - name: Install dependencies
+          pip install --quiet --upgrade poetry
+
+      - name: Installation
         run: |
           poetry build -f wheel
           poetry install
+
       - name: Check
         run: |
           poetry run python -c "import othello"
