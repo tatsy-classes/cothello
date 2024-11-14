@@ -39,10 +39,6 @@ public:
         return Player(-value);
     }
 
-    Player neg() const {
-        return -(*this);
-    }
-
     std::string str() const {
         return value == Player::BLACK ? "BLACK" : "WHITE";
     }
