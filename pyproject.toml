@@ -34,16 +34,16 @@ pytest = "^7.4.3"
 
 [tool.isort]
 profile = "black"
-length_sort = "True"
+length_sort = true
 line_length = 99
 
 [tool.mypy]
-python_version = 3.9
+python_version = "3.10"
 follow_imports = "silent"
-disallow_any_generics = "True"
-strict_optional = "True"
-check_untyped_defs = "True"
-allow_redefinition = "True"
+disallow_any_generics = true
+strict_optional = true
+check_untyped_defs = true
+allow_redefinition = true
 
 [tool.flake8]
 max-line-length = 99
