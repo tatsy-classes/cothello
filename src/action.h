@@ -60,7 +60,8 @@ public:
         if (this->isPass()) {
             oss << "PASS";
         } else {
-            oss << x + 1 << " " << y + 1;
+            const char c[1] = { (char)('A' + y) };
+            oss << (int)(x + 1) << " " << std::string(c);
         }
         return oss.str();
     }
