@@ -16,6 +16,7 @@ PYBIND11_MODULE(libcpp, m_cpp) {
     auto cls_player = py::class_<Player>(m_cpp, "Player");
     cls_player.def(py::init<int>())
         .def_property_readonly("name", &Player::str, "Player name")
+        .def_property_readonly("value", &Player::getValue, "Player value")
         .def_property_readonly_static("BLACK", [](py::object) { return (int)Player::BLACK; })
         .def_property_readonly_static("WHITE", [](py::object) { return (int)Player::WHITE; })
         .def_static(
