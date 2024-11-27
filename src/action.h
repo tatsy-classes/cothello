@@ -33,17 +33,6 @@ public:
         return player.getValue();
     }
 
-    bool isPass() const {
-        return x < 0 && y < 0;
-    }
-
-    static Action makePass(const Player &player) {
-        Action action(player, 0, 0);
-        action.x = -1;
-        action.y = -1;
-        return action;
-    }
-
     bool operator==(const Action &other) const {
         if (player != other.player) {
             return false;
@@ -56,13 +45,9 @@ public:
 
     std::string str() const {
         std::ostringstream oss;
+        const char c[1] = { (char)('A' + y) };
         oss << player.str() << " ";
-        if (this->isPass()) {
-            oss << "PASS";
-        } else {
-            const char c[1] = { (char)('A' + y) };
-            oss << (int)(x + 1) << " " << std::string(c);
-        }
+        oss << (int)(x + 1) << std::string(c);
         return oss.str();
     }
 
@@ -71,9 +56,6 @@ public:
     }
 
     std::string toSymbol() const {
-        if (isPass()) {
-            return "";
-        }
         std::ostringstream oss;
         oss << char('A' + x) << char('1' + y);
         return oss.str();

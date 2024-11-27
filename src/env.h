@@ -62,7 +62,7 @@ public:
     }
 
     bool isDone() const {
-        return ::isDone(b_board, w_board);
+        return isGameSet(b_board, w_board);
     }
 
     bool isWin(Player player) const {
@@ -79,6 +79,10 @@ public:
         w_board = std::get<1>(board_history.back());
         board_history.pop_back();
         action_history.pop_back();
+    }
+
+    void turnChange() {
+        player = -player;
     }
 
     void update(Action action) {
@@ -103,14 +107,14 @@ public:
         }
 
         if (player.isBlack()) {
-            player = -player;
             b_board = b0;
             w_board = b1;
         } else {
-            player = -player;
             b_board = b1;
             w_board = b0;
         }
+
+        turnChange();
     }
 
     Player getPlayer() const {
@@ -127,21 +131,19 @@ public:
             b1 = b_board;
         }
 
-        const uint64_t bits = makeLegalBoard(b0, b1);
+        std::vector<Action> ret;
+        uint64_t bits = makeLegalBoard(b0, b1);
         if (bits == 0) {
-            std::vector<Action> ret;
-            ret.push_back(Action::makePass(player));
             return ret;
         }
 
-        const auto legal = bitsToBoard(bits);
-        std::vector<Action> ret;
-        for (int y = 0; y < 8; y++) {
-            for (int x = 0; x < 8; x++) {
-                if (legal[y * 8 + x] != 0) {
-                    ret.emplace_back(player, x, y);
-                }
+        int pos = NUM_CELLS - 1;
+        while (bits != 0) {
+            if ((bits & 0x01) != 0) {
+                ret.emplace_back(player, pos % 8, pos / 8);
             }
+            bits >>= 1;
+            pos -= 1;
         }
         return ret;
     }

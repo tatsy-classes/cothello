@@ -34,9 +34,7 @@ PYBIND11_MODULE(libcpp, m_cpp) {
     // Action
     auto cls_action = py::class_<Action>(m_cpp, "Action");
     cls_action.def(py::init<Player, int, int>())
-        .def("is_pass", &Action::isPass, "Check if the action is pass")
         .def("to_symbol", &Action::toSymbol)
-        .def_static("make_pass", &Action::makePass, "Create a pass action for player specified", py::arg("player"))
         .def_property_readonly("player", &Action::getPlayer, "Player of the action")
         .def_property_readonly("x", &Action::getX, "X coordinate")
         .def_property_readonly("y", &Action::getY, "Y coordinate")
@@ -55,6 +53,7 @@ PYBIND11_MODULE(libcpp, m_cpp) {
         .def("is_lose", &Env::isLose, "Check if the player loses", py::arg("player"))
         .def("undo", &Env::undo, "Undo the last action")
         .def("update", &Env::update, "Update the environment with the action", py::arg("action"))
+        .def("turn_change", &Env::turnChange, "Change the turn")
         .def("legal_actions", &Env::legalActions, "Get the list of legal actions")
         .def_property_readonly("player", &Env::getPlayer, "Current player")
         .def_property_readonly("history_size", &Env::historySize)
@@ -65,9 +64,8 @@ PYBIND11_MODULE(libcpp, m_cpp) {
     m_bb.def("c_coordinates_to_bits", &coordinatesToBits);
     m_bb.def("c_bits_to_board", &bitsToBoard);
     m_bb.def("c_make_legal_board", &makeLegalBoard);
-    m_bb.def("c_can_put", &canPut);
+    m_bb.def("c_can_put", &isAbleToPut);
     m_bb.def("c_reverse", &reverse);
-    m_bb.def("c_is_pass", &isPass);
-    m_bb.def("c_is_done", &isDone);
+    m_bb.def("c_is_done", &isGameSet);
     m_bb.def("c_bit_count", &bitCount);
 }

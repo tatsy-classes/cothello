@@ -162,18 +162,12 @@ uint64_t transfer(uint64_t put, int k) {
     return 0;
 }
 
-bool canPut(uint64_t put, uint64_t b0, uint64_t b1) {
+bool isAbleToPut(uint64_t put, uint64_t b0, uint64_t b1) {
     const uint64_t legal = makeLegalBoard(b0, b1);
     return (put & legal) == put;
 }
 
-bool isPass(uint64_t b0, uint64_t b1) {
-    const uint64_t l0 = makeLegalBoard(b0, b1);
-    const uint64_t l1 = makeLegalBoard(b1, b0);
-    return (l0 == 0) && (l1 != 0);
-}
-
-bool isDone(uint64_t b0, uint64_t b1) {
+bool isGameSet(uint64_t b0, uint64_t b1) {
     const uint64_t l0 = makeLegalBoard(b0, b1);
     const uint64_t l1 = makeLegalBoard(b1, b0);
     return (l0 == 0) && (l1 == 0);

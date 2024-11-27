@@ -18,9 +18,8 @@ std::array<int, NUM_CELLS> bitsToBoard(uint64_t bits);
 uint64_t makeLegalBoard(uint64_t b0, uint64_t b1);
 std::tuple<uint64_t, uint64_t> reverse(uint64_t put, uint64_t b0, uint64_t b1);
 uint64_t transfer(uint64_t put, int k);
-bool canPut(uint64_t put, uint64_t b0, uint64_t b1);
-bool isPass(uint64_t b0, uint64_t b1);
-bool isDone(uint64_t b0, uint64_t b1);
+bool isAbleToPut(uint64_t put, uint64_t b0, uint64_t b1);
+bool isGameSet(uint64_t b0, uint64_t b1);
 int bitCount(uint64_t bits);
 
 #endif  // _OTHELLO_BITBOARD_H_
