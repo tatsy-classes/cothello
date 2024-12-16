@@ -60,7 +60,7 @@ PYBIND11_MODULE(libcpp, m_cpp) {
         .def_property_readonly("last_action", &Env::getLastAction)
         .def("history", [](const Env &self) {
             auto boards = self.getHistory();
-            std::vector<py::array_t<int>> ret(board.size());
+            std::vector<py::array_t<int>> ret(boards.size());
             std::transform(boards.begin(), boards.end(), ret.begin(),
                            [](const auto &board) { return to_numpy<int, 8, 8>(board); });
             return ret;

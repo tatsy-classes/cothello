@@ -46,7 +46,7 @@ public:
         board_history.clear();
     }
 
-    static std::array<int, NUM_CELLS> toBoard(uint64_t blackBits, uint64_t whitebits) {
+    static std::array<int, NUM_CELLS> toBoard(uint64_t blackBits, uint64_t whiteBits) {
         auto B = bitsToBoard(blackBits);
         auto W = bitsToBoard(whiteBits);
         std::transform(B.begin(), B.end(), W.begin(), B.begin(), [](int b, int w) -> int { return b - w; });
@@ -54,7 +54,7 @@ public:
     }
 
     std::array<int, NUM_CELLS> board() const {
-        return Board::toBoard(b_board, w_board);
+        return Env::toBoard(b_board, w_board);
     }
 
     int count(Player player) const {
@@ -159,7 +159,7 @@ public:
     std::vector<std::array<int, NUM_CELLS>> getHistory() const {
         std::vector<std::array<int, NUM_CELLS>> ret;
         for (const auto &board : board_history) {
-            ret.push_back(Board::toBoard(std::get<0>(board), std::get<1>(board)));
+            ret.push_back(Env::toBoard(std::get<0>(board), std::get<1>(board)));
         }
         return ret;
     }
