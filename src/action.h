@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <string>
 #include <stdexcept>
 
 class Action {
@@ -44,11 +45,11 @@ public:
     }
 
     std::string str() const {
-        std::ostringstream oss;
+        std::ostringstream oss("");
         oss.clear();
         oss << player.str() << " ";
-        oss << static_cast<char>('A' + x) << std::flush;
-        oss << static_cast<char>('1' + y) << std::flush;
+        oss << static_cast<char>((int)'A' + x) << std::flush;
+        oss << static_cast<char>((int)'1' + y) << std::flush;
         oss.flush();
         return oss.str();
     }
@@ -58,10 +59,10 @@ public:
     }
 
     std::string toSymbol() const {
-        std::ostringstream oss;
+        std::ostringstream oss("");
         oss.clear();
-        oss << static_cast<char>('A' + x) << std::flush;
-        oss << static_cast<char>('1' + y) << std::flush;
+        oss << static_cast<char>((int)'A' + x) << std::flush;
+        oss << static_cast<char>((int)'1' + y) << std::flush;
         return oss.str();
     }
 
