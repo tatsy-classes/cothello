@@ -48,9 +48,7 @@ public:
         std::ostringstream oss("");
         oss.clear();
         oss << player.str() << " ";
-        oss << static_cast<char>((int)'A' + x) << std::flush;
-        oss << static_cast<char>((int)'1' + y) << std::flush;
-        oss.flush();
+        oss << toSymbol();
         return oss.str();
     }
 
