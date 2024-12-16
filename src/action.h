@@ -47,8 +47,8 @@ public:
     std::string str() const {
         std::ostringstream oss;
         oss << player.str() << " ";
-        oss << static_cast<char>('1' + y) << std::flush;
-        oss << static_cast<char>('A' + x) << std::flush;
+        oss << static_cast<char>('1' + x) << std::flush;
+        oss << static_cast<char>('A' + y) << std::flush;
         oss.flush();
         return oss.str();
     }
