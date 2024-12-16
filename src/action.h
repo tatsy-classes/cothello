@@ -44,12 +44,11 @@ public:
     }
 
     std::string str() const {
-        std::string coord = "  ";
-        coord[0] = 'A' + y;
-        coord[1] = '1' + x;
-
         std::ostringstream oss;
-        oss << player.str() << " " << coord;
+        oss << player.str() << " ";
+        oss << (char)('A' + x);
+        oss << (char)('1' + y);
+        oss.flush();
         return oss.str();
     }
 
@@ -59,7 +58,9 @@ public:
 
     std::string toSymbol() const {
         std::ostringstream oss;
-        oss << char('A' + x) << char('1' + y);
+        oss << (char)('A' + x);
+        oss << (char)('1' + y);
+        oss.flush();
         return oss.str();
     }
 
