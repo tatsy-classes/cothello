@@ -45,10 +45,11 @@ public:
     }
 
     std::string str() const {
-        std::ostringstream oss("");
-        oss.clear();
+        std::ostringstream oss;
         oss << player.str() << " ";
-        oss << toSymbol();
+        oss << static_cast<char>('1' + y) << std::flush;
+        oss << static_cast<char>('A' + x) << std::flush;
+        oss.flush();
         return oss.str();
     }
 
@@ -57,10 +58,9 @@ public:
     }
 
     std::string toSymbol() const {
-        std::ostringstream oss("");
-        oss.clear();
-        oss << static_cast<char>((int)'A' + x) << std::flush;
-        oss << static_cast<char>((int)'1' + y) << std::flush;
+        std::ostringstream oss;
+        oss << static_cast<char>('A' + x) << std::flush;
+        oss << static_cast<char>('1' + y) << std::flush;
         return oss.str();
     }
 
