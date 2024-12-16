@@ -57,7 +57,14 @@ PYBIND11_MODULE(libcpp, m_cpp) {
         .def("legal_actions", &Env::legalActions, "Get the list of legal actions")
         .def_property_readonly("player", &Env::getPlayer, "Current player")
         .def_property_readonly("history_size", &Env::historySize)
-        .def_property_readonly("last_action", &Env::getLastAction);
+        .def_property_readonly("last_action", &Env::getLastAction)
+        .def("history", [](const Env &self) {
+            auto boards = self.getHistory();
+            std::vector<py::array_t<int>> ret(board.size());
+            std::transform(boards.begin(), boards.end(), ret.begin(),
+                           [](const auto &board) { return to_numpy<int, 8, 8>(board); });
+            return ret;
+        });
 
     // Bitboard
     auto m_bb = m_cpp.def_submodule("bitboard", "Bitboard submodule");

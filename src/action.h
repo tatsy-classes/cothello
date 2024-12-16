@@ -44,10 +44,12 @@ public:
     }
 
     std::string str() const {
+        std::string coord = "  ";
+        coord[0] = 'A' + y;
+        coord[1] = '1' + x;
+
         std::ostringstream oss;
-        const char c[1] = { (char)('A' + y) };
-        oss << player.str() << " ";
-        oss << (int)(x + 1) << std::string(c);
+        oss << player.str() << " " << coord;
         return oss.str();
     }
 

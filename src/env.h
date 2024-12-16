@@ -46,11 +46,15 @@ public:
         board_history.clear();
     }
 
-    std::array<int, NUM_CELLS> board() const {
-        auto B = bitsToBoard(b_board);
-        auto W = bitsToBoard(w_board);
+    static std::array<int, NUM_CELLS> toBoard(uint64_t blackBits, uint64_t whitebits) {
+        auto B = bitsToBoard(blackBits);
+        auto W = bitsToBoard(whiteBits);
         std::transform(B.begin(), B.end(), W.begin(), B.begin(), [](int b, int w) -> int { return b - w; });
         return B;
+    }
+
+    std::array<int, NUM_CELLS> board() const {
+        return Board::toBoard(b_board, w_board);
     }
 
     int count(Player player) const {
@@ -150,6 +154,14 @@ public:
 
     size_t historySize() const {
         return action_history.size();
+    }
+
+    std::vector<std::array<int, NUM_CELLS>> getHistory() const {
+        std::vector<std::array<int, NUM_CELLS>> ret;
+        for (const auto &board : board_history) {
+            ret.push_back(Board::toBoard(std::get<0>(board), std::get<1>(board)));
+        }
+        return ret;
     }
 
     Action getLastAction() const {
